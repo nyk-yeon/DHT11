@@ -11,6 +11,7 @@ int read_dht11(){
   
   int DHT_data[40] = {0,};
   int ready_signal = 0;
+  uint8_t data[5] = {0,};
 
   delayMicroseconds(1); // 최초 지연 에러 제거
 
@@ -18,8 +19,9 @@ int read_dht11(){
   digitalWrite(DHT11,LOW);
   delay(18);
   digitalWrite(DHT11,HIGH);
+  delayMicroseconds(40);
   pinMode(DHT11,INPUT);
-  delayMicroseconds(30);
+  delayMicroseconds(20);
 
   while(digitalRead(DHT11) == LOW){     // response signal 
     delayMicroseconds(1);
@@ -50,14 +52,30 @@ int read_dht11(){
   digitalWrite(DHT11,HIGH);
 
 
-  for(int i=0;i<5;i++){       // 프로토콜 확인
+  for(int i=0;i<5;i++){
     for(int j=0;j<8;j++){
       printf("%d",DHT_data[j+i*8]);
     }
     printf(" ");
   }
   printf("\r\n");
-  
+
+  // https://github.com/adafruit/DHT-sensor-library/blob/master/DHT.h
+  for(int i = 0; i < 40; ++i) {
+
+    data[i / 8] <<= 1;
+
+    if(DHT_data[i]) {
+      data[i / 8] |= 1;
+    }
+  }
+
+  printf("Data : ");
+  for(int i = 0;i<5;i++){
+    printf("%d ",data[i]);
+  }
+  printf("\r\n");
+
 
   return 0;
 }
